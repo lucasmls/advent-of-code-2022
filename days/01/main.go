@@ -3,6 +3,7 @@ package main
 import (
 	_ "embed"
 	"fmt"
+	"sort"
 	"strconv"
 	"strings"
 
@@ -27,15 +28,12 @@ func init() {
 func main() {
 	elfsFood := strings.Split(input, "\n")
 
-	mostCaloriesBeingCarried := 0
+	elfsCaloriesSum := []int{}
 	currentElfCalorieSum := 0
 
 	for _, foodCalorieLine := range elfsFood {
 		if isEmptyLine(foodCalorieLine) {
-			if currentElfCalorieSum > mostCaloriesBeingCarried {
-				mostCaloriesBeingCarried = currentElfCalorieSum
-			}
-
+			elfsCaloriesSum = append(elfsCaloriesSum, currentElfCalorieSum)
 			currentElfCalorieSum = 0
 			continue
 		}
@@ -54,7 +52,13 @@ func main() {
 		currentElfCalorieSum += calorie
 	}
 
-	fmt.Println("The most calories being carried is:", mostCaloriesBeingCarried)
+	sort.Slice(elfsCaloriesSum, func(i, j int) bool {
+		return elfsCaloriesSum[i] > elfsCaloriesSum[j]
+	})
+
+	sum := elfsCaloriesSum[0] + elfsCaloriesSum[1] + elfsCaloriesSum[2]
+
+	fmt.Println("The top 3 calories being carried sums up to:", sum)
 }
 
 func isEmptyLine(s string) bool {

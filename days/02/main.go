@@ -2,6 +2,7 @@ package main
 
 import (
 	_ "embed"
+	"errors"
 	"fmt"
 	"strings"
 )
@@ -16,9 +17,9 @@ const (
 	Paper   = "B"
 	Scissor = "C"
 
-	RockResponse    = "X"
-	PaperResponse   = "Y"
-	ScissorResponse = "Z"
+	DesiredOutcomeLose = "X"
+	DesiredOutcomeDraw = "Y"
+	DesiredOutcomeWin  = "Z"
 
 	LoseOutcome = "lose"
 	DrawOutcome = "draw"
@@ -42,7 +43,9 @@ func main() {
 		options := strings.Split(game, " ")
 
 		oponentChoice := options[0]
-		response := responseToOption(options[1])
+		desiredOutcome := options[1]
+
+		response, _ := discoverResponseToMachResult(desiredOutcome, oponentChoice)
 
 		gameResult := calculateGameResult(oponentChoice, response)
 		gameScore := calculateScore(response, gameResult)
@@ -53,15 +56,39 @@ func main() {
 	fmt.Println("The final score is:", finalScore)
 }
 
-func responseToOption(response string) string {
-	switch response {
-	case RockResponse:
-		return Rock
-	case PaperResponse:
-		return Paper
-	default:
-		return Scissor
+func discoverResponseToMachResult(desiredOutcome, oponentChoice string) (string, error) {
+	switch desiredOutcome {
+	case DesiredOutcomeLose:
+		if oponentChoice == Rock {
+			return Scissor, nil
+		}
+
+		if oponentChoice == Paper {
+			return Rock, nil
+		}
+
+		if oponentChoice == Scissor {
+			return Paper, nil
+		}
+
+	case DesiredOutcomeDraw:
+		return oponentChoice, nil
+
+	case DesiredOutcomeWin:
+		if oponentChoice == Rock {
+			return Paper, nil
+		}
+
+		if oponentChoice == Paper {
+			return Scissor, nil
+		}
+
+		if oponentChoice == Scissor {
+			return Rock, nil
+		}
 	}
+
+	return "", errors.New("unknown desired outcome")
 }
 
 func calculateGameResult(oponentChoice string, response string) string {

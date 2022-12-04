@@ -11,76 +11,84 @@ var (
 	input string
 )
 
-func itemToPriority(item rune) int {
-	// Uppercase
-	if item >= 65 && item <= 90 {
-		return int(item-65+1) + 26
-	}
-
-	// Lowercase
-	return int(item - 97 + 1)
-}
-
-type Item struct {
-	Char     rune
-	Quantity int
-	Priority int
-}
-
 func main() {
-	rucksacks := strings.Split(input, "\n")
+	var (
+		sacks  = strings.Split(input, "\n")
+		result = 0
+	)
 
-	result := 0
+	groups := chunk(sacks, 3)
 
-	for _, rucksack := range rucksacks {
-		rucksackSize := len(rucksack)
+	for _, group := range groups {
+		groupSet := map[int]map[string]int{}
 
-		firstCompartment := map[rune]*Item{}
-		secondCompartment := map[rune]*Item{}
-
-		for i := 0; i < (rucksackSize / 2); i++ {
-			item := rune(rucksack[i])
-
-			x, ok := firstCompartment[item]
-			if !ok {
-				firstCompartment[item] = &Item{
-					Char:     item,
-					Quantity: 1,
-					Priority: itemToPriority(item),
-				}
-
-				continue
-			}
-
-			x.Quantity += 1
+		for i, item := range group {
+			groupSet[i] = stringCharacterSet(item)
 		}
 
-		for i := rucksackSize / 2; i < rucksackSize; i++ {
-			item := rune(rucksack[i])
-
-			x, ok := secondCompartment[item]
-			if !ok {
-				secondCompartment[item] = &Item{
-					Char:     item,
-					Quantity: 1,
-					Priority: itemToPriority(item),
-				}
-
+		for k, _ := range groupSet[0] {
+			if _, ok := groupSet[1][k]; !ok {
 				continue
 			}
 
-			x.Quantity += 1
-		}
-
-		for _, item := range firstCompartment {
-			_, ok := secondCompartment[item.Char]
-			if !ok {
+			if _, ok := groupSet[2][k]; !ok {
 				continue
 			}
 
-			result += item.Priority
+			result += calcLetterPriority(k)
 		}
 	}
 
 	fmt.Println("Result: ", result)
+}
+
+func stringCharacterSet(s string) map[string]int {
+	set := map[string]int{}
+
+	for _, r := range s {
+		char := string(r)
+		if _, ok := set[char]; !ok {
+			set[char] = 0
+		}
+
+		set[char] += 1
+	}
+
+	return set
+}
+
+func chunk(slice []string, size int) [][]string {
+	var (
+		chunk  []string
+		result [][]string
+	)
+
+	for i, item := range slice {
+		chunk = append(chunk, item)
+
+		if (i+1)%size == 0 {
+			result = append(result, chunk)
+
+			chunk = []string{}
+			continue
+		}
+	}
+
+	if len(chunk) > 0 && len(chunk) < size {
+		result = append(result, chunk)
+	}
+
+	return result
+}
+
+func calcLetterPriority(letter string) int {
+	char := rune(letter[0])
+
+	// Uppercase
+	if char >= 65 && char <= 90 {
+		return int(char-65+1) + 26
+	}
+
+	// Lowercase
+	return int(char - 97 + 1)
 }

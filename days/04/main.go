@@ -29,7 +29,7 @@ func main() {
 		// 38-38
 		secondElfAssignment := NewAssignment(elfAssignments[1])
 
-		if firstElfAssignment.FullyOverlap(secondElfAssignment) || secondElfAssignment.FullyOverlap(firstElfAssignment) {
+		if firstElfAssignment.PartiallyOverlap(secondElfAssignment) || secondElfAssignment.PartiallyOverlap(firstElfAssignment) {
 			result += 1
 		}
 	}
@@ -62,6 +62,30 @@ func (a Assignment) FullyOverlap(counterpartyAssignment Assignment) bool {
 	}
 
 	if a.Start <= counterpartyAssignment.Start && a.End >= counterpartyAssignment.End {
+		return true
+	}
+
+	return false
+}
+
+func (a Assignment) PartiallyOverlap(counterpartyAssignment Assignment) bool {
+	if a.Start == counterpartyAssignment.Start && a.End == counterpartyAssignment.End {
+		return true
+	}
+
+	if inBetweenRange(a.Start, a.End, counterpartyAssignment.Start) {
+		return true
+	}
+
+	if inBetweenRange(a.Start, a.End, counterpartyAssignment.End) {
+		return true
+	}
+
+	return false
+}
+
+func inBetweenRange(start, end, value int) bool {
+	if value >= start && value <= end {
 		return true
 	}
 

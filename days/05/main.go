@@ -140,11 +140,18 @@ func main() {
 		line := fileScanner.Text()
 		movement := NewMovement(line)
 
-		for i := 0; i < movement.Quantity; i++ {
-			from := movement.From - 1
-			to := movement.To - 1
+		from := movement.From - 1
+		to := movement.To - 1
 
+		auxStack := NewStack()
+
+		for i := 0; i < movement.Quantity; i++ {
 			v := crate.PopFromStack(from)
+			auxStack.Push(v)
+		}
+
+		for i := 0; i < movement.Quantity; i++ {
+			v := auxStack.Pop()
 			crate.PushIntoStack(to, v)
 		}
 	}

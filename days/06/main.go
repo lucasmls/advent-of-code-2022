@@ -65,7 +65,8 @@ func (s *Marker) rotate() {
 }
 
 func main() {
-	marker := NewMarker(4)
+	marker := NewMarker(14)
+
 	for i, r := range input {
 		char := string(r)
 		marker.Add(char)
